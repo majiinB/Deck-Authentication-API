@@ -7,8 +7,10 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-import {onRequest} from "firebase-functions/v2/https";
-import * as logger from "firebase-functions/logger";
+import * as functions from "firebase-functions";
+import express from "express";
+import cors, {CorsOptions} from "cors";
+import authRoutes from "./routes/Routes";
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
@@ -17,3 +19,32 @@ import * as logger from "firebase-functions/logger";
 //   logger.info("Hello logs!", {structuredData: true});
 //   response.send("Hello from Firebase!");
 // });
+
+const corsOptions: CorsOptions = {
+  origin: (origin: string | undefined,
+    callback: (err: Error | null, allow?: boolean) => void) => {
+    console.log(`CORS Request from: ${origin}`);
+    const allowedOrigins = ["https://frontend.com"];
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true); // Allow request
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+};
+
+const app = express();
+
+// Middleware
+app.use(cors(corsOptions));
+// TODO: Add rate limiter
+app.use(express.json());
+// app.use(errorHandler);
+app.use("/v1/auth", authRoutes);
+app.get("/v1", (req, res) => {
+  res.json({
+    message: "Deck Authentication API is running",
+  });
+});
+
+export const api = functions.https.onRequest(app);
