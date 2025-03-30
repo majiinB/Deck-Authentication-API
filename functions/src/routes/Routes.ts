@@ -7,6 +7,7 @@ const router = Router();
 const authController = new AuthController(new AuthService(new AuthRepository));
 
 /**
+ *
  * @route POST api/v1/auth/verify_token
  * @description Verifies the Firebase ID Token sent from the website.
  * @returns Success 200

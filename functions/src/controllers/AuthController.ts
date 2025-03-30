@@ -21,7 +21,8 @@ export class AuthController {
      * Handles the verification of the Firebase ID Token
      * @param {Request} req - The HTTP request object.
      * @param {Response} res - The HTTP response object.
-     * @return {Promise<void>} A JSON response containing the action.
+     * @return {Promise<void>} A JSON response containing the 
+     * decoded token and the UID of the user.
      */
   public async confirmToken(req : Request, res : Response): Promise<void> {
     try {
