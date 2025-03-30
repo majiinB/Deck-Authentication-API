@@ -1,5 +1,6 @@
 import {AuthRepository} from "../repositories/AuthRepository";
 import {BaseResponse} from "../models/BaseResponse";
+import {UserRecord} from "firebase-admin/auth";
 /**
  * Service class responsible for handling auth-related operations
  */
@@ -36,5 +37,15 @@ export class AuthService {
    */
   public async forgetPass(email: string): Promise<string> {
     return await this.authRepository.forgotPass(email);
+  }
+
+  /**
+   * Gets the user from Firebase Authentication
+   * @param {userId} userId - UID of the user.
+   * @return {Promise<UserRecord>} A promise containing
+   * the user details.
+   */
+  public async getUser(userId: string): Promise<UserRecord> {
+    return await this.authRepository.getUser(userId);
   }
 }

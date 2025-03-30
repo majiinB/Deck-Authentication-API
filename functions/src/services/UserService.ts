@@ -34,6 +34,28 @@ export class UserService {
   }
 
   /**
+   * Get the user details in Firestore.
+   * @param {userId} userId - UID of the user.
+   * @return {Promise<BaseResponse>} JSON Response containing
+   * the details of the user
+   */
+  public async getUserDetails(userId:string): Promise<BaseResponse> {
+    try {
+      const userDoc = await this.userRepository.getUserById(userId);
+
+      if (!userDoc || !userDoc.exists) {
+        return {success: false, message: "User not found"};
+      }
+
+      const user: User = userDoc.data();
+
+      return {success: true, message: user};
+    } catch (error) {
+      return {success: false, message: error};
+    }
+  }
+
+  /**
    * Creates user in the Firestore.
    * @param {uid} uid - Unique identifier of the user
    * @param {email} email - Email associated with the user

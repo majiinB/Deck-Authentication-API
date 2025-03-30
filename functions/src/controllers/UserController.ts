@@ -68,4 +68,29 @@ export class UserController {
     }
   }
 
+  /**
+   * Sends the user's details in Firestore.
+   * @param {req} req - HTTP Request
+   * @param {res} res - HTTP Response
+   * @return {Promise<void>} An empty promise sending the JSON
+   * response containing the user details.
+   */
+  public async getUser(req: Request, res: Response): Promise<void> {
+    try {
+      const {uid} = req.body;
+      const details = await this.userService.getUserDetails(uid);
+      if (!details) {
+        res.status(400).json({success: false, message: "Unable to find user."});
+        return;
+      }
+
+      res.status(200).json(details);
+    } catch (error) {
+      if (error instanceof Error) {
+        console.log(error.message);
+      } else {
+        console.log("An unknown error occurred in creating the account.");
+      }
+    }
+  }
 }

@@ -59,4 +59,14 @@ export class AuthRepository extends FirebaseAdmin {
   public async deleteUser(userId: string): Promise<void> {
     return this.getAuth().deleteUser(userId);
   }
+
+  /**
+   * Gets the user from Firebase Authentication
+   * @param {userId} userId - The UID of the user.
+   * @return {Promise<UserRecord>} A promise containing
+   * the details of the user.
+   */
+  public async getUser(userId: string): Promise<UserRecord> {
+    return (await this.getAuth().getUser(userId));
+  }
 }

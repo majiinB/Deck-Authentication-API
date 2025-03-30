@@ -2,9 +2,17 @@ import {Router, Request, Response} from "express";
 import {AuthController} from "../controllers/AuthController";
 import {AuthService} from "../services/AuthService";
 import {AuthRepository} from "../repositories/AuthRepository";
+import {UserController} from "../controllers/UserController";
+import {UserService} from "../services/UserService";
+import {UserRepository} from "../repositories/UserRepository";
 // eslint-disable-next-line new-cap
 const router = Router();
-const authController = new AuthController(new AuthService(new AuthRepository));
+const authController = new AuthController(
+  new AuthService(
+    new AuthRepository()));
+const userController = new UserController(
+  new UserService(
+    new UserRepository()));
 
 /**
  *
@@ -15,6 +23,13 @@ const authController = new AuthController(new AuthService(new AuthRepository));
  */
 router.post("/verify-token", async (req: Request, res: Response) => {
   await authController.confirmToken(req, res);
+});
+
+/**
+ *
+ */
+router.post("/create-account", async (req : Request, res: Response) => {
+  await userController.createUser(req, res);
 });
 
 export default router;
