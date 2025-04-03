@@ -47,4 +47,5 @@ app.get("/v1", (req, res) => {
   });
 });
 
-export const api = functions.https.onRequest(app);
+// eslint-disable-next-line camelcase
+export const deck_authentication_api = functions.https.onRequest(app);
