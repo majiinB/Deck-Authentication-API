@@ -43,9 +43,9 @@ app.use(express.json());
 app.use("/v1/auth", authRoutes);
 app.get("/v1", (req, res) => {
   res.json({
-    message: "Deck Authentication API is running",
+    message: "Deck Authentication and Account Management API is running",
   });
 });
 
 // eslint-disable-next-line camelcase
-export const deck_authentication_api = functions.https.onRequest(app);
+export const deck_auth_and_acc_api = functions.https.onRequest(app);

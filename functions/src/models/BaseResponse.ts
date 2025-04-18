@@ -4,6 +4,7 @@
  * three layers in this project.
  */
 export interface BaseResponse {
-    success: boolean,
-    message: any | unknown,
+  success: boolean,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  message: any,
 }

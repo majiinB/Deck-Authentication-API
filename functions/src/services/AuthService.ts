@@ -1,6 +1,6 @@
 import {AuthRepository} from "../repositories/AuthRepository";
 import {BaseResponse} from "../models/BaseResponse";
-import {UserRecord} from "firebase-admin/auth";
+import {UpdateRequest, UserRecord} from "firebase-admin/auth";
 /**
  * Service class responsible for handling auth-related operations
  */
@@ -40,12 +40,34 @@ export class AuthService {
   }
 
   /**
-   * Gets the user from Firebase Authentication
+   * Gets the user from Firebase Authentication using id
    * @param {userId} userId - UID of the user.
    * @return {Promise<UserRecord>} A promise containing
    * the user details.
    */
-  public async getUser(userId: string): Promise<UserRecord> {
-    return await this.authRepository.getUser(userId);
+  public async getUserById(userId: string): Promise<UserRecord> {
+    return await this.authRepository.getUserById(userId);
+  }
+
+  /**
+   * Gets the user from Firebase Authentication using email
+   * @param {email} email - Email associated of the user.
+   * @return {Promise<UserRecord>} A promise containing
+   * the user details.
+   */
+  public async getUserByEmail(email: string): Promise<UserRecord> {
+    return await this.authRepository.getUserByEmail(email);
+  }
+
+  /**
+   * Updates a user in the Firebase Authentication
+   * @param {uid} uid - UID of the user
+   * @param {data} data - New details of the user
+   * @return {Promise<UserRecord>} - JSON Response
+   * containing the new user details.
+   */
+  public async updateUser(uid: string, data: UpdateRequest)
+  : Promise<UserRecord> {
+    return await this.authRepository.updateUser(uid, data);
   }
 }

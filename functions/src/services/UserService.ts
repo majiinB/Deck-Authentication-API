@@ -79,4 +79,55 @@ export class UserService {
       return {success: false, message: error};
     }
   }
+
+  /**
+   * Updates the user in Firestore
+   * @param {uid} uid - UID of the user
+   * @param {data} data - values to be updated
+   * @return {Promise<BaseResponse>} - JSON Response
+   * containing a message successfully updated the user
+   */
+  public async updateUser(uid: string, data: User)
+  : Promise<BaseResponse> {
+    try {
+      await this.userRepository.updateUser(uid, data);
+      return {success: true, message: "Successfully updated user!"};
+    } catch (error) {
+      return {success: false, message: error};
+    }
+  }
+
+  /**
+   * Gets all users in Firestore.
+   * @return {Promise<BaseResponse>} JSON Response
+   * containing all users.
+   */
+  public async getAllUsers(): Promise<BaseResponse> {
+    try {
+      const users = await this.userRepository.getUsers();
+
+      if (!users) {
+        return {success: false, message: "Failed to fetch all users."};
+      }
+
+      return {success: true, message: users};
+    } catch (error) {
+      return {success: false, message: error};
+    }
+  }
+
+  /**
+   * Deletes a user from Firestore.
+   * @param {userId} userId - UID of the user
+   * @return {Promise<BaseResponse>} Promise indicating
+   * the status of the deletion.
+   */
+  public async deleteUser(userId: string): Promise<BaseResponse> {
+    try {
+      await this.userRepository.deleteUser(userId);
+      return {success: true, message: "Successfully deleted user."};
+    } catch (error) {
+      return {success: false, message: error};
+    }
+  }
 }

@@ -1,5 +1,6 @@
 import {Request, Response} from "express";
 import {UserService} from "../services/UserService";
+import {BaseResponse} from "../models/BaseResponse";
 /**
  * This class is responsible for managing user services.
  */
@@ -69,16 +70,22 @@ export class UserController {
   }
 
   /**
-   * Sends the user's details in Firestore.
+   * Retrieve the user's details from Firestore.
    * @param {req} req - HTTP Request
    * @param {res} res - HTTP Response
-   * @return {Promise<void>} An empty promise sending the JSON
+   * @return {Promise<void | BaseResponse>} An empty promise sending the JSON
    * response containing the user details.
    */
-  public async getUser(req: Request, res: Response): Promise<void> {
+  public async getUser(req: Request, res?: Response)
+  : Promise<void | BaseResponse> {
     try {
       const {uid} = req.body;
       const details = await this.userService.getUserDetails(uid);
+
+      if (!res) {
+        return details;
+      }
+
       if (!details) {
         res.status(400).json({success: false, message: "Unable to find user."});
         return;
@@ -89,7 +96,36 @@ export class UserController {
       if (error instanceof Error) {
         console.log(error.message);
       } else {
-        console.log("An unknown error occurred in creating the account.");
+        console.log("An unknown error occurred in getting the user.");
+      }
+    }
+  }
+
+  /**
+   * Retrieves all users in Firestore.
+   * @param {req} req - HTTP Request
+   * @param {res} res - HTTP Response
+   */
+  public async getUsers(req: Request, res: Response): Promise<void> {
+    try {
+      const users = await this.userService.getAllUsers();
+
+      if (!users) {
+        res.status(400).json({
+          success: true,
+          message: false,
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        message: users,
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        console.log(error.message);
+      } else {
+        console.log("An unknown error occurred in fetching users");
       }
     }
   }

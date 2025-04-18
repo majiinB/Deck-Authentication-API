@@ -1,4 +1,5 @@
-import {CreateRequest, UpdateRequest, UserRecord} from "firebase-admin/auth";
+import {CreateRequest, ListUsersResult,
+  UpdateRequest, UserRecord} from "firebase-admin/auth";
 import {FirebaseAdmin} from "../config/firebaseAdmin";
 
 /**
@@ -61,12 +62,36 @@ export class AuthRepository extends FirebaseAdmin {
   }
 
   /**
-   * Gets the user from Firebase Authentication
+   * Gets the user from Firebase Authentication using uid
    * @param {userId} userId - The UID of the user.
    * @return {Promise<UserRecord>} A promise containing
    * the details of the user.
    */
-  public async getUser(userId: string): Promise<UserRecord> {
-    return (await this.getAuth().getUser(userId));
+  public async getUserById(userId: string): Promise<UserRecord> {
+    return await this.getAuth().getUser(userId);
+  }
+
+  /**
+   * Gets the user from Firebase Authentication using email
+   * @param {email} email - The email associated of the user.
+   * @return {Promise<UserRecord>} A promise containing
+   * the details of the user.
+   */
+  public async getUserByEmail(email: string)
+  : Promise<UserRecord> {
+    return await this.getAuth().getUserByEmail(email);
+  }
+
+  /**
+   * Gets all users from Firebase Authentication
+   * @param {maxUsers} maxUsers - (optional)
+   * number of users to be retrieved
+   * @param {page} page - (optional) offset.
+   * @return {Promise<ListUsersResult>} A promise
+   * containing the list of users.
+   */
+  public async getAllUsers(maxUsers?: number, page?: string)
+  : Promise<ListUsersResult> {
+    return await this.getAuth().listUsers(maxUsers, page);
   }
 }
