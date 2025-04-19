@@ -5,15 +5,22 @@ import {AuthRepository} from "../repositories/AuthRepository";
 import {UserController} from "../controllers/UserController";
 import {UserService} from "../services/UserService";
 import {UserRepository} from "../repositories/UserRepository";
+import {StorageController} from "../controllers/StorageController";
+import {StorageService} from "../services/StorageService";
+import {StorageRepository} from "../repositories/StorageRepository";
+import multer from "multer";
 // eslint-disable-next-line new-cap
 const router = Router();
+const upload = multer(); // Use memory storage
 const authController = new AuthController(
   new AuthService(
     new AuthRepository()));
 const userController = new UserController(
   new UserService(
     new UserRepository()));
-
+const storageController = new StorageController(
+  new StorageService(
+    new StorageRepository()));
 
 /* GENERAL ROUTES */
 
@@ -36,8 +43,12 @@ router.post("/verify-token", async (req: Request, res: Response) => {
  * @returns Error 500
  */
 router.post("/create-account", async (req : Request, res: Response) => {
-  await userController.createUser(req, res);
-  await authController.updateAccountName(req, res);
+  await userController.createUser(req);
+  await authController.updateAccountName(req);
+  res.status(200).json({
+    success: true,
+    message: "Successfully created account",
+  });
 });
 
 /**
@@ -83,35 +94,40 @@ router.post("/moderator/enable-user", async (req: Request, res: Response) => {
 });
 
 /**
- * @route GET api/vi/auth/moderator/get-users
+ * @route POST api/vi/auth/moderator/get-users
  * @description Fetches all users.
  * @returns Success 200
  * @returns Error 500
  */
-router.get("/moderator/get-users", async (req: Request, res: Response) => {
+router.post("/moderator/get-users", async (req: Request, res: Response) => {
   await userController.getUsers(req, res);
 });
 
 /**
- * @route GET api/vi/auth/moderator/get-user/auth
+ * @route POST api/vi/auth/moderator/get-user/auth
  * @description Fetches a selected user's auth details.
  * @returns Success 200
  * @returns Error 500
  */
-router.get("/moderator/get-user/auth", async (req: Request, res: Response) => {
+router.post("/moderator/get-user/auth", async (req: Request, res: Response) => {
   await authController.getUserById(req, res);
 });
 
 /**
- * @route GET api/vi/auth/moderator/get-user/firestore
+ * @route POST api/vi/auth/moderator/get-user/firestore
  * @description Fetches a selected user's firestore details.
  * @returns Success 200
  * @returns Error 500
  */
-router.get("/moderator/get-user/firestore",
+router.post("/moderator/get-user/firestore",
   async (req: Request, res: Response) => {
     await userController.getUser(req, res);
   }
 );
+
+/* STORAGE ROUTES */
+router.post("/upload", upload.single("file"), (req, res) => {
+  storageController.uploadHandler(req, res);
+});
 
 export default router;

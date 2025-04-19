@@ -39,17 +39,18 @@ export class UserService {
    * @return {Promise<BaseResponse>} JSON Response containing
    * the details of the user
    */
-  public async getUserDetails(userId:string): Promise<BaseResponse> {
+  public async getUserDetails(userId:string)
+  : Promise<
+      BaseResponse | (FirebaseFirestore.DocumentData | null | undefined)
+    > {
     try {
       const userDoc = await this.userRepository.getUserById(userId);
 
-      if (!userDoc || !userDoc.exists) {
+      if (!userDoc) {
         return {success: false, message: "User not found"};
       }
 
-      const user: User = userDoc.data();
-
-      return {success: true, message: user};
+      return {success: true, message: userDoc};
     } catch (error) {
       return {success: false, message: error};
     }

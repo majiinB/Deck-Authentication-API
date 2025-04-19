@@ -19,12 +19,13 @@
  * Environment Variables:
  * - DECK_SERVICE_ACCOUNT_PATH: Path to the Firebase service account JSON file.
  *
- * @author Arthur M. Artugue
+ * @author Arthur M. Artugue, Richmond Glenn M. Viloria
  * @created 2025-03-26
- * @updated 2025-03-28
+ * @updated 2025-04-19
  */
 import admin from "firebase-admin";
 import {Timestamp} from "firebase-admin/firestore";
+import {Storage} from "firebase-admin/storage";
 
 /**
  * Class responsible for initializing and managing the Firebase Admin SDK
@@ -36,6 +37,12 @@ export class FirebaseAdmin {
   * @type {FirebaseFirestore.Firestore}
   */
   private db: FirebaseFirestore.Firestore;
+  /**
+   * The Firebase Storage instance for
+   * interacting with Firebase Storage.
+   * @type {Storage}
+   */
+  private storage: Storage;
 
   /**
    * Initializes the FirebaseAdmin class by reading the service account
@@ -44,10 +51,15 @@ export class FirebaseAdmin {
   constructor() {
     // Singleton
     if (admin.apps.length === 0) {
-      admin.initializeApp();
+      admin.initializeApp({
+        credential:
+          admin.credential.cert("./src/config/firebase-credentials.json"),
+        storageBucket: "deck-f429c.appspot.com",
+      });
     }
 
     this.db = admin.firestore();
+    this.storage = admin.storage();
   }
 
   /**
@@ -56,6 +68,14 @@ export class FirebaseAdmin {
    */
   protected getDb(): FirebaseFirestore.Firestore {
     return this.db;
+  }
+
+  /**
+   * Retrieves the Firebase Storage instance.
+   * @return {Storage} Firebase Storage instance.
+   */
+  protected getStorage(): Storage {
+    return this.storage;
   }
 
   /**

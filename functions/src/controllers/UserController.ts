@@ -47,12 +47,19 @@ export class UserController {
   * Handles creating a user to be stored in Firestore.
   * @param {Request} req - The HTTP request object.
   * @param {Response} res - The HTTP response object.
-  * @return {Promise<void>} A JSON response containing the action.
+  * @return {Promise<void | BaseResponse>}
+  * A JSON response containing the action.
    */
-  public async createUser(req: Request, res: Response): Promise<void> {
+  public async createUser(req: Request, res?: Response)
+  : Promise<void | BaseResponse> {
     try {
       const {uid, email, name} = req.body;
       const creation = await this.userService.createUser(uid, email, name);
+
+      if (!res) {
+        return creation;
+      }
+
       if (!creation) {
         res.status(400).json({success: false,
           message: "Account creation failed."});
@@ -76,22 +83,21 @@ export class UserController {
    * @return {Promise<void | BaseResponse>} An empty promise sending the JSON
    * response containing the user details.
    */
-  public async getUser(req: Request, res?: Response)
-  : Promise<void | BaseResponse> {
+  public async getUser(req: Request, res: Response)
+  : Promise<void> {
     try {
       const {uid} = req.body;
       const details = await this.userService.getUserDetails(uid);
 
-      if (!res) {
-        return details;
-      }
-
-      if (!details) {
-        res.status(400).json({success: false, message: "Unable to find user."});
+      if (!details || !details.success) {
+        res.status(400).json({
+          success: false,
+          message: "Unable to find user: " + uid,
+        });
         return;
       }
 
-      res.status(200).json(details);
+      res.status(200).json({success: true, message: details.message});
     } catch (error) {
       if (error instanceof Error) {
         console.log(error.message);

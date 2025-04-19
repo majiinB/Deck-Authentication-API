@@ -23,29 +23,34 @@ export class AuthController {
    * @param {Request} req - The HTTP request object.
    * @param {Response} res - The HTTP response object.
    */
-  public async getUserById(req: Request, res?: Response)
-  : Promise<void | UserRecord> {
+  public async getUserById(req: Request, res: Response): Promise<void> {
+    const {uid} = req.body;
+
+    if (!uid) {
+      res.status(400).json({
+        success: false,
+        message: "UID is required.",
+      });
+      return;
+    }
+
     try {
-      const {uid} = req.body;
       const user = await this.authService.getUserById(uid);
 
-      if (!res) {
-        return user;
-      }
+      const {email, displayName, phoneNumber, photoURL} = user;
 
-      if (user) {
-        res.status(400).json({
-          success: false,
-          message: "Failed getting user by uid.",
-        });
-      }
-
-      res.status(200).json(user);
+      res.status(200).json({
+        uid,
+        email,
+        displayName,
+        phoneNumber,
+        photoURL,
+      });
     } catch (error) {
       if (error instanceof Error) {
         console.log(error.message);
       } else {
-        console.log("An unknown error occurred in getting user by id");
+        console.log("An unknown error occurred in getting user by email");
       }
     }
   }
@@ -60,14 +65,23 @@ export class AuthController {
       const {email} = req.body;
       const user = await this.authService.getUserByEmail(email);
 
-      if (user) {
+      if (!user) {
         res.status(400).json({
           success: false,
           message: "Failed getting user by email.",
         });
+        return;
       }
 
-      res.status(200).json(user);
+      const {uid, displayName, phoneNumber, photoURL} = user;
+
+      res.status(200).json({
+        uid,
+        email,
+        displayName,
+        phoneNumber,
+        photoURL,
+      });
     } catch (error) {
       if (error instanceof Error) {
         console.log(error.message);
@@ -92,30 +106,31 @@ export class AuthController {
       const {token} = req.body;
 
       if (!token) {
-        res.status(400).json({success: false, message: "Token is required"});
+        res.status(400).json({
+          success: false,
+          message: "Token is required",
+        });
         return;
       }
 
       const verifiedToken = await this.authService.verifyToken(token);
-      if (!verifiedToken.success || !verifiedToken.message.uid) {
-        res.status(401).json("Unable to verify token.");
+      if (!verifiedToken.success) {
+        res.status(401).json({
+          success: false,
+          message: "Failed to verify token.",
+        });
         return;
       }
 
-      const userDetails = await this.authService.getUserById(
-        verifiedToken.message.uid);
-      if (!userDetails) {
-        res.status(401).json("Unable to find user.");
-        return;
-      }
-
-      res.status(200).json({verifiedToken, userDetails});
+      res.status(200).json({
+        success: true,
+        message: verifiedToken.message,
+      });
     } catch (error) {
-      if (error instanceof Error) {
-        console.log(error.message);
-      } else {
-        console.log("An unknown error occurred in verifying firebase token.");
-      }
+      console.log({success: false,
+        message: error instanceof Error ?
+          error.message : "Unknown error",
+      });
     }
   }
 
@@ -124,11 +139,16 @@ export class AuthController {
    * @param {req} req
    * @param {res} res
    */
-  public async updateAccountName(req: Request, res: Response): Promise<void> {
+  public async updateAccountName(req: Request, res?: Response)
+  : Promise<void | UserRecord> {
     try {
       const {uid, name} = req.body;
       const update = await this.authService.updateUser(uid,
         {displayName: name});
+
+      if (!res) {
+        return update;
+      }
       if (!update) {
         res.status(401).json("Unable to update user's name");
         return;

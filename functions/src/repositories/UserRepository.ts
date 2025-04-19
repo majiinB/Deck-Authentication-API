@@ -15,10 +15,29 @@ export class UserRepository extends FirebaseAdmin {
    */
   public async getUserById(userId: string)
   : Promise<FirebaseFirestore.DocumentData | null | undefined> {
-    const db = this.getDb();
-    const userDoc = await db.collection("users").doc(userId).get();
+    try {
+      const db = this.getDb();
+      console.log("🔥 Querying for user_id:", userId);
 
-    return userDoc.exists ? userDoc.data() : null;
+      const snapshot = await db.collection("users")
+        .where("user_id", "==", userId)
+        .limit(1)
+        .get();
+
+      console.log("✅ Query executed. Docs count:", snapshot.size);
+
+      if (snapshot.empty) {
+        console.log("❌ No matching documents found.");
+        return null;
+      }
+
+      const data = snapshot.docs[0].data();
+      console.log("🎯 User data:", data);
+      return data;
+    } catch (err) {
+      console.error("💥 Error querying Firestore:", err);
+      return null;
+    }
   }
 
   /**

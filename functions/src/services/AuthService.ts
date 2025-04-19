@@ -23,8 +23,10 @@ export class AuthService {
   public async verifyToken(idToken: string): Promise<BaseResponse> {
     try {
       const decodedToken = await this.authRepository.decodeToken(idToken);
-      const uid = decodedToken.uid;
-      return {success: true, message: {decodedToken, uid}};
+      if (!decodedToken) {
+        return {success: false, message: "Failed to verify token."};
+      }
+      return {success: true, message: decodedToken.uid};
     } catch (error) {
       return {success: false, message: error};
     }
